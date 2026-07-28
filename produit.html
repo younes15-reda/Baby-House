@@ -646,8 +646,63 @@
 .order-form-input:focus{border-color:var(--rose);}
 .order-form-label{display:block;font-size:.82rem;font-weight:700;color:var(--text-dark);margin-bottom:5px;}
 .order-form-group{margin-bottom:13px;}
-.color-chip{width:30px;height:30px;border-radius:50%;border:3px solid transparent;cursor:pointer;transition:all .2s;flex-shrink:0;}
-.color-chip.active{border-color:var(--rose);transform:scale(1.2);}
+
+/* 🎨 High Visibility Color Selector Styles */
+.selector-container-color {
+  background: #ffffff !important;
+  border: 2.5px solid #E8889A !important;
+  box-shadow: 0 4px 20px rgba(232, 136, 154, 0.25) !important;
+  border-radius: 18px !important;
+  padding: 16px 20px !important;
+  position: relative;
+  transition: all 0.3s ease;
+  margin-bottom: 14px;
+}
+.color-badge-pulse {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #E8889A, #C96478);
+  color: white;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 20px;
+  animation: pulseBadge 2s infinite;
+}
+@keyframes pulseBadge {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(232,136,154,0.6); }
+  50% { transform: scale(1.05); box-shadow: 0 0 0 8px rgba(232,136,154,0); }
+}
+.color-chip {
+  width: 38px !important;
+  height: 38px !important;
+  border-radius: 50% !important;
+  border: 2.5px solid #E5E7EB !important;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 900;
+  font-size: 0.95rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  position: relative;
+}
+.color-chip:hover {
+  transform: scale(1.12);
+  border-color: #E8889A !important;
+}
+.color-chip.active {
+  border-color: #E8889A !important;
+  transform: scale(1.22);
+  box-shadow: 0 4px 14px rgba(232,136,154,0.5) !important;
+}
+.color-chip.active::after {
+  content: '✓';
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.6));
+}
 </style>
 
 <div id="toast-container" class="toast-container"></div>
@@ -815,12 +870,17 @@ function renderProductDetail(p) {
 
       <!-- Color Selector -->
       ${(vf.colors !== false) ? `
-      <div class="selector-container-desktop">
-        <div style="margin-bottom:8px;font-size:.85rem;font-weight:700;color:var(--text-dark);">
-          Couleur / اللون
-          <span id="selected-color-name" style="font-weight:500;color:var(--text-soft);margin-right:6px;font-size:.78rem;"></span>
+      <div class="selector-container-color">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:6px;">
+          <div style="font-size:.88rem;font-weight:800;color:var(--text-dark);display:flex;align-items:center;gap:6px;">
+            🎨 Couleur / اللون
+            <span id="selected-color-name" style="font-weight:600;color:var(--rose);font-size:.82rem;"></span>
+          </div>
+          <div class="color-badge-pulse">
+            <span>✨ N'oubliez pas de choisir la couleur !</span>
+          </div>
         </div>
-        <div style="display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap;">${colorsHTML}</div>
+        <div style="display:flex;gap:12px;margin-bottom:4px;flex-wrap:wrap;align-items:center;">${colorsHTML}</div>
         <script>selectColor(document.querySelector('.color-chip.active'), '${colors[0]}');<\/script>
       </div>` : ''}
 
@@ -1020,6 +1080,19 @@ function selectColor(el, color) {
   document.querySelectorAll('.color-chip').forEach(c => c.classList.remove('active'));
   el.classList.add('active');
   selectedColor = color;
+
+  // Afficher la couleur sélectionnée dans le label
+  const lbl = document.getElementById('selected-color-name');
+  if (lbl) {
+    lbl.innerHTML = `<span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:${color};border:1.5px solid #ddd;vertical-align:middle;margin-left:4px;"></span> ${color}`;
+  }
+  // Masquer le badge "N'oubliez pas..." une fois la couleur choisie
+  const badge = document.querySelector('.color-badge-pulse');
+  if (badge) {
+    badge.style.transition = 'opacity 0.4s';
+    badge.style.opacity = '0';
+    badge.style.pointerEvents = 'none';
+  }
 }
 
 function changeQty(delta) {
