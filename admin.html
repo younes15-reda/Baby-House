@@ -297,7 +297,7 @@
     </div>
     <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:20px;">
       <button class="btn btn-outline btn-sm" onclick="closeTypeModal()">Annuler</button>
-      <button class="btn btn-primary btn-sm" onclick="submitTypeForm()">💾 Enregistrer</button>
+      <button class="btn btn-primary btn-sm" id="btn-submit-type" onclick="submitTypeForm()">💾 Enregistrer</button>
     </div>
   </div>
 </div>
@@ -445,7 +445,7 @@
 
     <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:18px;">
       <button class="btn btn-outline btn-sm" onclick="closeProductModal()">Annuler</button>
-      <button class="btn btn-primary btn-sm" onclick="submitProductForm()">💾 Enregistrer</button>
+      <button class="btn btn-primary btn-sm" id="btn-submit-product" onclick="submitProductForm()">💾 Enregistrer</button>
     </div>
   </div>
 </div>
@@ -665,6 +665,20 @@ function handleTypePhotoUpload(input) {
   reader.readAsDataURL(file);
 }
 
+// ── Helper Timeout pour connexions lentes (3G/instables) ──
+function promiseWithTimeout(promise, ms = 20000) {
+  let timeoutId;
+  const timeoutPromise = new Promise((_, reject) => {
+    timeoutId = setTimeout(() => {
+      reject(new Error('TIMEOUT_NETWORK'));
+    }, ms);
+  });
+  return Promise.race([
+    promise.then((res) => { clearTimeout(timeoutId); return res; }),
+    timeoutPromise
+  ]);
+}
+
 async function submitTypeForm() {
   const id = document.getElementById('type-edit-id').value;
   const key = document.getElementById('type-key').value.trim();
@@ -672,10 +686,25 @@ async function submitTypeForm() {
   const labelAr = document.getElementById('type-label-ar').value.trim();
   const image = document.getElementById('type-image').value.trim();
   if (!key||!label) { alert('La clé et le nom FR sont requis.'); return; }
+
+  const btn = document.getElementById('btn-submit-type');
+  if (btn) { btn.disabled = true; btn.innerHTML = '⏳ Enregistrement...'; }
+
   try {
-    await window.db.saveType(id||key, { key, label, labelAr, image });
+    await promiseWithTimeout(
+      window.db.saveType(id||key, { key, label, labelAr, image }),
+      20000
+    );
     closeTypeModal(); showToast('✅ Catégorie sauvegardée !', 'success'); loadTypes();
-  } catch(e) { alert('Erreur: '+e.message); }
+  } catch(e) {
+    if (e.message === 'TIMEOUT_NETWORK') {
+      alert('⚠️ Connexion internet trop lente ou interrompue. Veuillez vérifier votre réseau et réessayez.');
+    } else {
+      alert('Erreur lors de la sauvegarde: ' + (e.message || e));
+    }
+  } finally {
+    if (btn) { btn.disabled = false; btn.innerHTML = '💾 Enregistrer'; }
+  }
 }
 
 async function deleteType(id) {
@@ -1014,15 +1043,26 @@ async function submitProductForm() {
   }
 
   const oldPrice = oldPriceVal ? parseFloat(oldPriceVal) : null;
+
+  const btn = document.getElementById('btn-submit-product');
+  if (btn) { btn.disabled = true; btn.innerHTML = '⏳ Sauvegarde en cours...'; }
+
   try {
-    await window.db.saveProduct(editId||id, { name, nameAr, category, ageGroup, price, oldPrice, stock, sizes, colors, photos, matiere, description, visibleFields });
+    await promiseWithTimeout(
+      window.db.saveProduct(editId||id, { name, nameAr, category, ageGroup, price, oldPrice, stock, sizes, colors, photos, matiere, description, visibleFields }),
+      25000
+    );
     closeProductModal(); showToast('✅ Produit sauvegardé !', 'success'); loadProducts();
   } catch(e) {
-    if (e.message && e.message.includes('exceeds')) {
+    if (e.message === 'TIMEOUT_NETWORK') {
+      alert('⚠️ La connexion internet est trop lente ou s\'est interrompue pendant l\'envoi. Veuillez vérifier votre réseau et réessayez.');
+    } else if (e.message && e.message.includes('exceeds')) {
       alert('❌ Les photos sont trop lourdes pour Firestore. Utilisez des images plus petites (< 200Ko) ou des URLs externes (https://…)');
     } else {
-      alert('Erreur: ' + e.message);
+      alert('Erreur lors de la sauvegarde: ' + (e.message || e));
     }
+  } finally {
+    if (btn) { btn.disabled = false; btn.innerHTML = '💾 Enregistrer'; }
   }
 }
 
