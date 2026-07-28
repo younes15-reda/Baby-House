@@ -775,7 +775,7 @@ function renderProductDetail(p) {
 
   const colors = p.colors || ['#FFB5BA','#B5D5FF','#FFEEB5','#B5FFD5','#E8B5FF'];
   const colorsHTML = colors.map((c,i) =>
-    `<div class="color-chip${i===0?' active':''}" style="background:${c};" onclick="selectColor(this,'${c}')" title="${c}"></div>`
+    `<div class="color-chip" style="background:${c};" onclick="selectColor(this,'${c}')" title="${c}"></div>`
   ).join('');
 
   // Helper function to build beautiful visual HTML
@@ -881,7 +881,6 @@ function renderProductDetail(p) {
           </div>
         </div>
         <div style="display:flex;gap:12px;margin-bottom:4px;flex-wrap:wrap;align-items:center;">${colorsHTML}</div>
-        <script>selectColor(document.querySelector('.color-chip.active'), '${colors[0]}');<\/script>
       </div>` : ''}
 
       <!-- Qty + Stock -->
