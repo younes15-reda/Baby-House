@@ -863,14 +863,36 @@ function editProduct(id) {
   document.getElementById('product-oldprice').value = p.oldPrice||'';
   document.getElementById('product-stock').value = p.stock??10;
   
-  // Remplir le champ couleurs et le visuel
-  // Si le produit possède colorDetails, utiliser ses quantités exactes. Sinon, initialiser proprement.
-  const colorDetails = p.colorDetails || (p.colors || []).map(c => ({ color: c, stock: 1 }));
+  // Remplir le champ couleurs et le visuel (Parser correctement si p.colorDetails est une chaîne JSON)
+  let parsedColorDetails = [];
+  if (p.colorDetails) {
+    if (typeof p.colorDetails === 'string' && p.colorDetails.trim().length > 0) {
+      try { parsedColorDetails = JSON.parse(p.colorDetails); } catch(e) {}
+    } else if (Array.isArray(p.colorDetails)) {
+      parsedColorDetails = p.colorDetails;
+    }
+  }
+  
+  // Si vide, tenter avec p.colors
+  if (!parsedColorDetails || parsedColorDetails.length === 0) {
+    let rawColors = p.colors || [];
+    if (typeof rawColors === 'string' && rawColors.trim().length > 0) {
+      if (rawColors.trim().startsWith('[')) {
+        try { rawColors = JSON.parse(rawColors); } catch(e) {}
+      } else {
+        rawColors = rawColors.split(',').map(c => c.trim()).filter(Boolean);
+      }
+    }
+    if (Array.isArray(rawColors)) {
+      parsedColorDetails = rawColors.map(c => typeof c === 'object' ? c : { color: c, stock: p.stock ?? 5 });
+    }
+  }
+
   const colorsListDiv = document.getElementById('product-colors-list');
   colorsListDiv.innerHTML = '';
-  colorDetails.forEach(cd => {
-    const hex = typeof cd === 'string' ? cd : cd.color;
-    const st  = typeof cd === 'string' ? 1 : (cd.stock ?? 1);
+  parsedColorDetails.forEach(cd => {
+    const hex = typeof cd === 'string' ? cd : (cd.color || '#ffb5ba');
+    const st  = typeof cd === 'string' ? (p.stock ?? 5) : (cd.stock ?? 5);
     renderColorChipAdmin(hex, st);
   });
   syncColorsInput();
