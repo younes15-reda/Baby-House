@@ -800,9 +800,15 @@ async function initProductPage() {
   window.dispatchEvent(new CustomEvent('product-loaded', { detail: p }));
 }
 
-window.addEventListener('firebase-ready', initProductPage);
+let _productPageInitialized = false;
+function safeInitProductPage() {
+  if (_productPageInitialized) return;
+  _productPageInitialized = true;
+  initProductPage();
+}
+window.addEventListener('firebase-ready', safeInitProductPage);
 window.addEventListener('load', () => {
-  if (window.db) { initProductPage(); } else { setTimeout(initProductPage, 2000); }
+  if (window.db) { safeInitProductPage(); } else { setTimeout(safeInitProductPage, 2000); }
 });
 
 // ── Product Detail Render ──────────────────────────────────────
@@ -863,7 +869,7 @@ function renderProductDetail(p) {
         return { color: item.color || '#FFB5BA', stock: item.stock ?? 10 };
       }
       return { color: '#FFB5BA', stock: 10 };
-    });
+    }).filter(cd => cd.color && cd.color.trim().length > 0);
   })();
 
   const colorsHTML = normalizedColors.map((cd) => {
@@ -965,8 +971,8 @@ function renderProductDetail(p) {
         <\/script>
       </div>` : ''}
 
-      <!-- Color Selector -->
-      ${(vf.colors !== false) ? `
+      <!-- Color Selector : affiché si le produit a au moins une couleur définie -->
+      ${(normalizedColors.length > 0 && !(normalizedColors.length === 1 && normalizedColors[0].color === '#FFB5BA' && vf.colors === false)) ? `
       <div class="selector-container-color">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:6px;">
           <div style="font-size:.88rem;font-weight:800;color:var(--text-dark);display:flex;align-items:center;gap:6px;">
