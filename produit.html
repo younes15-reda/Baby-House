@@ -818,16 +818,43 @@ function renderProductDetail(p) {
     `<button class="size-btn" onclick="selectSize(this,'${s}')">${s}</button>`
   ).join('');
 
-  // Gestion des couleurs et de leur stock (fallback robuste si colorDetails est un tableau vide)
-  let rawColorDetails = (p.colorDetails && p.colorDetails.length > 0) ? p.colorDetails : null;
-  if (!rawColorDetails) {
-    const rawColors = (p.colors && p.colors.length > 0) ? p.colors : ['#FFB5BA','#B5D5FF','#FFEEB5','#B5FFD5','#E8B5FF'];
-    rawColorDetails = rawColors.map(c => typeof c === 'object' ? c : { color: c, stock: p.stock ?? 5 });
-  }
-  
-  const colorsHTML = rawColorDetails.map((cd, i) => {
-    const colorHex = typeof cd === 'string' ? cd : (cd.color || cd);
-    const colorStock = typeof cd === 'string' ? (p.stock ?? 5) : (cd.stock ?? 5);
+  // Robust Universal Color Parser (Handles strings, arrays, JSON, comma-separated values from Firestore)
+  const normalizedColors = (() => {
+    let list = [];
+    if (p.colorDetails) {
+      if (typeof p.colorDetails === 'string') {
+        try { list = JSON.parse(p.colorDetails); } catch(e) {}
+      } else if (Array.isArray(p.colorDetails) && p.colorDetails.length > 0) {
+        list = p.colorDetails;
+      }
+    }
+    if (!list || list.length === 0) {
+      if (typeof p.colors === 'string') {
+        if (p.colors.trim().startsWith('[')) {
+          try { list = JSON.parse(p.colors); } catch(e) {}
+        } else {
+          list = p.colors.split(',').map(c => c.trim()).filter(Boolean);
+        }
+      } else if (Array.isArray(p.colors) && p.colors.length > 0) {
+        list = p.colors;
+      }
+    }
+    if (!list || list.length === 0) {
+      list = ['#FFB5BA', '#B5D5FF', '#FFEEB5', '#B5FFD5', '#E8B5FF'];
+    }
+    return list.map(item => {
+      if (typeof item === 'string') {
+        return { color: item.trim(), stock: p.stock ?? 5 };
+      } else if (item && typeof item === 'object') {
+        return { color: item.color || '#FFB5BA', stock: item.stock ?? (p.stock ?? 5) };
+      }
+      return { color: '#FFB5BA', stock: 5 };
+    });
+  })();
+
+  const colorsHTML = normalizedColors.map((cd) => {
+    const colorHex = cd.color;
+    const colorStock = cd.stock;
     const isOut = colorStock <= 0;
     const outCls = isOut ? ' out-of-stock' : '';
     const titleTxt = isOut ? `${colorHex} (Épuisé)` : colorHex;
