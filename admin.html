@@ -346,10 +346,7 @@
         <label class="admin-form-label">Ancien Prix (DA)</label>
         <input type="number" id="product-oldprice" class="admin-form-input" placeholder="2400"/>
       </div>
-      <div class="admin-form-group">
-        <label class="admin-form-label">Stock</label>
-        <input type="number" id="product-stock" class="admin-form-input" value="10"/>
-      </div>
+
     </div>
 
     <div class="admin-form-group">
@@ -834,7 +831,7 @@ function closeProductModal() {
    'product-oldprice','product-colors','product-matiere','product-photos','product-description'].forEach(id => {
     const el = document.getElementById(id); if(el) el.value = '';
   });
-  document.getElementById('product-stock').value = '10';
+
   uploadedPhotosBase64 = [];
   document.getElementById('product-photo-previews').innerHTML = '';
   document.getElementById('product-photos').value = '';
@@ -861,7 +858,7 @@ function editProduct(id) {
   document.getElementById('product-age-group').value = p.ageGroup||'nourrisson';
   document.getElementById('product-price').value = p.price||'';
   document.getElementById('product-oldprice').value = p.oldPrice||'';
-  document.getElementById('product-stock').value = p.stock??10;
+
   
   // Remplir le champ couleurs et le visuel (Parser correctement si p.colorDetails est une chaîne JSON)
   let parsedColorDetails = [];
@@ -1093,7 +1090,6 @@ async function submitProductForm() {
   const ageGroup = document.getElementById('product-age-group').value;
   const price = parseFloat(document.getElementById('product-price').value);
   const oldPriceVal = document.getElementById('product-oldprice').value.trim();
-  const stock = parseInt(document.getElementById('product-stock').value)||0;
   const matiere = document.getElementById('product-matiere').value.trim();
   const photosStr = document.getElementById('product-photos').value.trim();
   const description = document.getElementById('product-description').value.trim();
@@ -1111,7 +1107,7 @@ async function submitProductForm() {
   if (!colorsStr || colorsStr === '[]') {
     const pickerColor = document.getElementById('product-color-picker')?.value || '#ffb5ba';
     const pickerStockInput = document.getElementById('product-color-stock')?.value;
-    const pickerStock = pickerStockInput !== '' ? (parseInt(pickerStockInput) || 0) : stock;
+    const pickerStock = pickerStockInput !== '' ? (parseInt(pickerStockInput) || 10) : 10;
     renderColorChipAdmin(pickerColor, pickerStock);
     syncColorsInput();
     colorsStr = document.getElementById('product-colors').value.trim();
@@ -1124,8 +1120,10 @@ async function submitProductForm() {
     colors = colorDetails.map(cd => cd.color);
   } catch(e) {
     colors = colorsStr ? colorsStr.split(',').map(s=>s.trim()).filter(Boolean) : [];
-    colorDetails = colors.map(c => ({ color: c, stock: stock }));
+    colorDetails = colors.map(c => ({ color: c, stock: 10 }));
   }
+  // Calculer le stock total depuis les couleurs
+  const stock = colorDetails.reduce((sum, cd) => sum + (cd.stock || 0), 0);
   // Read visibility toggles
   const visibleFields = {};
   ['oldprice','sizes','colors','qty','stock','meta','delivery','reviews']
@@ -1162,7 +1160,7 @@ async function submitProductForm() {
 
   try {
     await promiseWithTimeout(
-      window.db.saveProduct(editId||id, { name, nameAr, category, ageGroup, price, oldPrice, stock, sizes, colors, photos, matiere, description, visibleFields }),
+      window.db.saveProduct(editId||id, { name, nameAr, category, ageGroup, price, oldPrice, stock, sizes, colors, colorDetails, photos, matiere, description, visibleFields }),
       25000
     );
     closeProductModal(); showToast('✅ Produit sauvegardé !', 'success'); loadProducts();

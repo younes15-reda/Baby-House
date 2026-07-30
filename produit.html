@@ -809,8 +809,15 @@ window.addEventListener('load', () => {
 function renderProductDetail(p) {
   const badgeHTML = p.badge ? `<div class="detail-badge ${p.badge==='promo'?'promo':'new'}" style="background:${p.badge==='promo'?'var(--rose)':'var(--sky)'};color:white;">${p.badgeLabel}</div>` : '';
   const oldHTML   = p.oldPrice ? `<div class="detail-old-price">${p.oldPrice.toLocaleString('fr-DZ')} DA</div>` : '';
-  const stockCls  = p.stock <= 5 ? 'stock-low' : 'stock-ok';
-  const stockTxt  = p.stock <= 5 ? `⚠️ Plus que ${p.stock} en stock` : `✅ En stock`;
+  // Stock total calculé depuis la somme des stocks de couleurs (p.stock est conservé comme fallback)
+  const totalStockForDisplay = (() => {
+    let cd = p.colorDetails;
+    if (typeof cd === 'string') { try { cd = JSON.parse(cd); } catch(e) { cd = null; } }
+    if (Array.isArray(cd) && cd.length > 0) return cd.reduce((s, c) => s + (c.stock || 0), 0);
+    return p.stock ?? 10;
+  })();
+  const stockCls = totalStockForDisplay <= 5 ? 'stock-low' : 'stock-ok';
+  const stockTxt = totalStockForDisplay <= 5 ? `⚠️ Plus que ${totalStockForDisplay} en stock` : `✅ En stock`;
   // Visibilité des sections (défini par l'admin, true = visible par défaut)
   const vf = p.visibleFields || {};
   
@@ -851,11 +858,11 @@ function renderProductDetail(p) {
     
     return list.map(item => {
       if (typeof item === 'string') {
-        return { color: item.trim(), stock: p.stock ?? 5 };
+        return { color: item.trim(), stock: 10 };
       } else if (item && typeof item === 'object') {
-        return { color: item.color || '#FFB5BA', stock: item.stock ?? (p.stock ?? 5) };
+        return { color: item.color || '#FFB5BA', stock: item.stock ?? 10 };
       }
-      return { color: '#FFB5BA', stock: 5 };
+      return { color: '#FFB5BA', stock: 10 };
     });
   })();
 
