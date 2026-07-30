@@ -863,13 +863,14 @@ function editProduct(id) {
   document.getElementById('product-oldprice').value = p.oldPrice||'';
   document.getElementById('product-stock').value = p.stock??10;
   
-  // Remplir le champ couleurs et le visuel (support colorDetails ou fallback colors)
-  const colorDetails = p.colorDetails || (p.colors || []).map(c => ({ color: c, stock: p.stock ?? 5 }));
+  // Remplir le champ couleurs et le visuel
+  // Si le produit possède colorDetails, utiliser ses quantités exactes. Sinon, initialiser proprement.
+  const colorDetails = p.colorDetails || (p.colors || []).map(c => ({ color: c, stock: 1 }));
   const colorsListDiv = document.getElementById('product-colors-list');
   colorsListDiv.innerHTML = '';
   colorDetails.forEach(cd => {
     const hex = typeof cd === 'string' ? cd : cd.color;
-    const st  = typeof cd === 'string' ? (p.stock ?? 5) : (cd.stock ?? 5);
+    const st  = typeof cd === 'string' ? 1 : (cd.stock ?? 1);
     renderColorChipAdmin(hex, st);
   });
   syncColorsInput();
@@ -1014,6 +1015,13 @@ function syncColorsInput() {
     stock: parseInt(c.getAttribute('data-stock')) || 0
   }));
   document.getElementById('product-colors').value = JSON.stringify(colorDetails);
+
+  // Si des couleurs sont définies, le stock global devient la somme des stocks de chaque couleur
+  if (colorDetails.length > 0) {
+    const totalStock = colorDetails.reduce((sum, cd) => sum + cd.stock, 0);
+    const stockInput = document.getElementById('product-stock');
+    if (stockInput) stockInput.value = totalStock;
+  }
 }
 
 // Restriction mutuelle taille standard / autres tailles
