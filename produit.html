@@ -818,10 +818,15 @@ function renderProductDetail(p) {
     `<button class="size-btn" onclick="selectSize(this,'${s}')">${s}</button>`
   ).join('');
 
-  // Gestion des couleurs et de leur stock
-  const colorDetails = p.colorDetails || (p.colors || []).map(c => ({ color: c, stock: p.stock ?? 5 }));
-  const colorsHTML = colorDetails.map((cd, i) => {
-    const colorHex = typeof cd === 'string' ? cd : cd.color;
+  // Gestion des couleurs et de leur stock (fallback robuste si colorDetails est un tableau vide)
+  let rawColorDetails = (p.colorDetails && p.colorDetails.length > 0) ? p.colorDetails : null;
+  if (!rawColorDetails) {
+    const rawColors = (p.colors && p.colors.length > 0) ? p.colors : ['#FFB5BA','#B5D5FF','#FFEEB5','#B5FFD5','#E8B5FF'];
+    rawColorDetails = rawColors.map(c => typeof c === 'object' ? c : { color: c, stock: p.stock ?? 5 });
+  }
+  
+  const colorsHTML = rawColorDetails.map((cd, i) => {
+    const colorHex = typeof cd === 'string' ? cd : (cd.color || cd);
     const colorStock = typeof cd === 'string' ? (p.stock ?? 5) : (cd.stock ?? 5);
     const isOut = colorStock <= 0;
     const outCls = isOut ? ' out-of-stock' : '';
