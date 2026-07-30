@@ -691,7 +691,35 @@
   0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(232,136,154,0.6); }
   50% { transform: scale(1.05); box-shadow: 0 0 0 8px rgba(232,136,154,0); }
 }
-.color-chip {
+.color-chip.out-of-stock {
+  opacity: 0.45;
+  filter: grayscale(40%);
+  cursor: not-allowed !important;
+  border-color: #ef4444 !important;
+  position: relative;
+}
+.color-chip.out-of-stock::after {
+  content: '❌' !important;
+  font-size: 0.75rem;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.8));
+}
+.color-chip.out-of-stock:hover {
+  transform: none !important;
+}
+.color-out-of-stock-alert {
+  background: #fef2f2;
+  border: 1.5px solid #fca5a5;
+  color: #991b1b;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  animation: popIn 0.3s ease;
+}
   width: 38px !important;
   height: 38px !important;
   border-radius: 50% !important;
@@ -790,10 +818,16 @@ function renderProductDetail(p) {
     `<button class="size-btn" onclick="selectSize(this,'${s}')">${s}</button>`
   ).join('');
 
-  const colors = p.colors || ['#FFB5BA','#B5D5FF','#FFEEB5','#B5FFD5','#E8B5FF'];
-  const colorsHTML = colors.map((c,i) =>
-    `<div class="color-chip" style="background:${c};" onclick="selectColor(this,'${c}')" title="${c}"></div>`
-  ).join('');
+  // Gestion des couleurs et de leur stock
+  const colorDetails = p.colorDetails || (p.colors || []).map(c => ({ color: c, stock: p.stock ?? 5 }));
+  const colorsHTML = colorDetails.map((cd, i) => {
+    const colorHex = typeof cd === 'string' ? cd : cd.color;
+    const colorStock = typeof cd === 'string' ? (p.stock ?? 5) : (cd.stock ?? 5);
+    const isOut = colorStock <= 0;
+    const outCls = isOut ? ' out-of-stock' : '';
+    const titleTxt = isOut ? `${colorHex} (Épuisé)` : colorHex;
+    return `<div class="color-chip${outCls}" style="background:${colorHex};" onclick="selectColor(this,'${colorHex}',${colorStock})" title="${titleTxt}"></div>`;
+  }).join('');
 
   // Helper function to build beautiful visual HTML
   const getMediaHTML = (photoItem) => {
@@ -898,6 +932,7 @@ function renderProductDetail(p) {
           </div>
         </div>
         <div style="display:flex;gap:12px;margin-bottom:4px;flex-wrap:wrap;align-items:center;">${colorsHTML}</div>
+        <div id="color-out-of-stock-msg" style="display:none;"></div>
       </div>` : ''}
 
       <!-- Qty + Stock -->
@@ -1091,8 +1126,33 @@ function selectSize(el, size) {
   selectedSize = size;
 }
 
-function selectColor(el, color) {
+function selectColor(el, color, stock) {
   if (!el) return;
+  const msgBox = document.getElementById('color-out-of-stock-msg');
+  
+  if (stock !== undefined && stock <= 0) {
+    // Si la couleur est en rupture de stock
+    document.querySelectorAll('.color-chip').forEach(c => c.classList.remove('active'));
+    selectedColor = null; // Réinitialiser pour empêcher la commande
+    
+    if (msgBox) {
+      msgBox.className = 'color-out-of-stock-alert';
+      msgBox.style.display = 'flex';
+      msgBox.innerHTML = `⚠️ Cette couleur est en rupture de stock ! / غير متوفر حاليا في هذا اللون`;
+    }
+    const lbl = document.getElementById('selected-color-name');
+    if (lbl) {
+      lbl.innerHTML = `<span style="color:#ef4444;font-weight:700;">(Épuisé / غير متوفر)</span>`;
+    }
+    showToast('⚠️ Couleur épuisée ! Choisissez une autre couleur.', 'error');
+    return;
+  }
+
+  // Si la couleur est disponible
+  if (msgBox) {
+    msgBox.style.display = 'none';
+  }
+
   document.querySelectorAll('.color-chip').forEach(c => c.classList.remove('active'));
   el.classList.add('active');
   selectedColor = color;

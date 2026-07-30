@@ -374,12 +374,16 @@
 
     <div class="admin-form-group">
       <label class="admin-form-label">Couleurs disponibles / الألوان المتوفرة</label>
-      <div style="display:flex;gap:10px;align-items:center;margin-bottom:8px;">
+      <div style="display:flex;gap:10px;align-items:center;margin-bottom:8px;flex-wrap:wrap;">
         <input type="color" id="product-color-picker" style="width:40px;height:40px;border-radius:50%;border:2px solid var(--cream-dark);cursor:pointer;padding:0;background:none;" value="#ffb5ba"/>
+        <div style="display:flex;align-items:center;gap:4px;">
+          <span style="font-size:.8rem;color:var(--admin-text-mid);font-weight:600;">Stock :</span>
+          <input type="number" id="product-color-stock" class="admin-form-input" style="width:80px;padding:6px 8px;font-size:.85rem;" min="0" value="5" placeholder="Qté"/>
+        </div>
         <button type="button" class="btn btn-outline btn-sm" onclick="addSelectedColor()">➕ Ajouter couleur</button>
       </div>
       <div id="product-colors-list" style="display:flex;gap:8px;flex-wrap:wrap;min-height:34px;padding:6px;background:var(--off-white);border:1.5px solid var(--cream-dark);border-radius:8px;"></div>
-      <!-- Le champ caché pour l'enregistrement Firestore sans tout casser -->
+      <!-- Champ caché JSON pour l'enregistrement des détails de couleur (hex + stock) -->
       <input type="hidden" id="product-colors" value=""/>
     </div>
 
@@ -859,19 +863,16 @@ function editProduct(id) {
   document.getElementById('product-oldprice').value = p.oldPrice||'';
   document.getElementById('product-stock').value = p.stock??10;
   
-  // Remplir le champ couleurs et le visuel
-  const colors = p.colors || [];
-  document.getElementById('product-colors').value = colors.join(', ');
+  // Remplir le champ couleurs et le visuel (support colorDetails ou fallback colors)
+  const colorDetails = p.colorDetails || (p.colors || []).map(c => ({ color: c, stock: p.stock ?? 5 }));
   const colorsListDiv = document.getElementById('product-colors-list');
   colorsListDiv.innerHTML = '';
-  colors.forEach(c => {
-    colorsListDiv.innerHTML += `
-      <div class="color-chip-admin" style="display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid #d1d5db;padding:4px 8px;border-radius:20px;font-size:.8rem;font-weight:700;" data-color="${c}">
-        <span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:${c};border:1px solid #aaa;"></span>
-        <span>${c}</span>
-        <button type="button" onclick="removeColorChip(this, '${c}')" style="background:none;border:none;color:#ef4444;font-weight:900;cursor:pointer;padding:0 2px;">×</button>
-      </div>`;
+  colorDetails.forEach(cd => {
+    const hex = typeof cd === 'string' ? cd : cd.color;
+    const st  = typeof cd === 'string' ? (p.stock ?? 5) : (cd.stock ?? 5);
+    renderColorChipAdmin(hex, st);
   });
+  syncColorsInput();
 
   document.getElementById('product-matiere').value = p.matiere || p.matiereLabel || '';
   document.getElementById('product-description').value = p.description||'';
@@ -965,33 +966,54 @@ function addCustomSize() {
 }
 
 // ── Gestion visuelle des couleurs pour l'admin ──────────────────
+function renderColorChipAdmin(color, stock) {
+  const list = document.getElementById('product-colors-list');
+  const chip = document.createElement('div');
+  chip.className = 'color-chip-admin';
+  chip.style.cssText = 'display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid #d1d5db;padding:4px 10px;border-radius:20px;font-size:.8rem;font-weight:700;';
+  chip.setAttribute('data-color', color);
+  chip.setAttribute('data-stock', stock);
+  
+  const stockBadgeColor = stock > 0 ? '#10b981' : '#ef4444';
+  const stockText = stock > 0 ? `${stock} en stock` : `❌ Épuisé`;
+  
+  chip.innerHTML = `
+    <span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:${color};border:1px solid #aaa;"></span>
+    <span>${color}</span>
+    <span style="font-size:.72rem;background:${stockBadgeColor}15;color:${stockBadgeColor};padding:2px 6px;border-radius:10px;">${stockText}</span>
+    <button type="button" onclick="removeColorChip(this)" style="background:none;border:none;color:#ef4444;font-weight:900;cursor:pointer;padding:0 2px;">×</button>`;
+  list.appendChild(chip);
+}
+
 function addSelectedColor() {
   const color = document.getElementById('product-color-picker').value;
+  const stockInput = document.getElementById('product-color-stock');
+  const stock = parseInt(stockInput.value) || 0;
   const list = document.getElementById('product-colors-list');
   
   // Vérifier si déjà présent
   const existing = Array.from(list.querySelectorAll('.color-chip-admin')).map(el => el.getAttribute('data-color'));
-  if (existing.includes(color)) return;
+  if (existing.includes(color)) {
+    alert(`La couleur ${color} a déjà été ajoutée.`);
+    return;
+  }
 
-  list.innerHTML += `
-    <div class="color-chip-admin" style="display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid #d1d5db;padding:4px 8px;border-radius:20px;font-size:.8rem;font-weight:700;" data-color="${color}">
-      <span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:${color};border:1px solid #aaa;"></span>
-      <span>${color}</span>
-      <button type="button" onclick="removeColorChip(this, '${color}')" style="background:none;border:none;color:#ef4444;font-weight:900;cursor:pointer;padding:0 2px;">×</button>
-    </div>`;
-  
+  renderColorChipAdmin(color, stock);
   syncColorsInput();
 }
 
-function removeColorChip(btn, color) {
+function removeColorChip(btn) {
   btn.closest('.color-chip-admin').remove();
   syncColorsInput();
 }
 
 function syncColorsInput() {
   const chips = Array.from(document.querySelectorAll('#product-colors-list .color-chip-admin'));
-  const colors = chips.map(c => c.getAttribute('data-color'));
-  document.getElementById('product-colors').value = colors.join(', ');
+  const colorDetails = chips.map(c => ({
+    color: c.getAttribute('data-color'),
+    stock: parseInt(c.getAttribute('data-stock')) || 0
+  }));
+  document.getElementById('product-colors').value = JSON.stringify(colorDetails);
 }
 
 // Restriction mutuelle taille standard / autres tailles
@@ -1061,7 +1083,15 @@ async function submitProductForm() {
     const val = tag.dataset.size;
     if (val && !sizes.includes(val)) sizes.push(val);
   });
-  const colors = colorsStr ? colorsStr.split(',').map(s=>s.trim()).filter(Boolean) : [];
+  let colorDetails = [];
+  let colors = [];
+  try {
+    colorDetails = JSON.parse(colorsStr);
+    colors = colorDetails.map(cd => cd.color);
+  } catch(e) {
+    colors = colorsStr ? colorsStr.split(',').map(s=>s.trim()).filter(Boolean) : [];
+    colorDetails = colors.map(c => ({ color: c, stock: stock }));
+  }
   // Read visibility toggles
   const visibleFields = {};
   ['oldprice','sizes','colors','qty','stock','meta','delivery','reviews']
