@@ -821,27 +821,34 @@ function renderProductDetail(p) {
   // Robust Universal Color Parser (Handles strings, arrays, JSON, comma-separated values from Firestore)
   const normalizedColors = (() => {
     let list = [];
+    
+    // 1. Tenter p.colorDetails (Array ou String JSON)
     if (p.colorDetails) {
-      if (typeof p.colorDetails === 'string') {
-        try { list = JSON.parse(p.colorDetails); } catch(e) {}
-      } else if (Array.isArray(p.colorDetails) && p.colorDetails.length > 0) {
+      if (Array.isArray(p.colorDetails)) {
         list = p.colorDetails;
+      } else if (typeof p.colorDetails === 'string' && p.colorDetails.trim().length > 0) {
+        try { list = JSON.parse(p.colorDetails); } catch(e) {}
       }
     }
-    if (!list || list.length === 0) {
-      if (typeof p.colors === 'string') {
+    
+    // 2. Si toujours vide, tenter p.colors (Array, String JSON ou CSV)
+    if (!Array.isArray(list) || list.length === 0) {
+      if (Array.isArray(p.colors) && p.colors.length > 0) {
+        list = p.colors;
+      } else if (typeof p.colors === 'string' && p.colors.trim().length > 0) {
         if (p.colors.trim().startsWith('[')) {
           try { list = JSON.parse(p.colors); } catch(e) {}
         } else {
           list = p.colors.split(',').map(c => c.trim()).filter(Boolean);
         }
-      } else if (Array.isArray(p.colors) && p.colors.length > 0) {
-        list = p.colors;
       }
     }
-    if (!list || list.length === 0) {
-      list = ['#FFB5BA', '#B5D5FF', '#FFEEB5', '#B5FFD5', '#E8B5FF'];
+    
+    // 3. Si toujours aucun résultat, utiliser une pastille par défaut
+    if (!Array.isArray(list) || list.length === 0) {
+      list = ['#FFB5BA'];
     }
+    
     return list.map(item => {
       if (typeof item === 'string') {
         return { color: item.trim(), stock: p.stock ?? 5 };

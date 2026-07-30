@@ -1091,6 +1091,18 @@ async function submitProductForm() {
     const val = tag.dataset.size;
     if (val && !sizes.includes(val)) sizes.push(val);
   });
+  let colorsStr = document.getElementById('product-colors').value.trim();
+  
+  // Si l'admin a oublié de cliquer sur "➕ Ajouter couleur", capturer automatiquement la couleur courante du picker
+  if (!colorsStr || colorsStr === '[]') {
+    const pickerColor = document.getElementById('product-color-picker')?.value || '#ffb5ba';
+    const pickerStockInput = document.getElementById('product-color-stock')?.value;
+    const pickerStock = pickerStockInput !== '' ? (parseInt(pickerStockInput) || 0) : stock;
+    renderColorChipAdmin(pickerColor, pickerStock);
+    syncColorsInput();
+    colorsStr = document.getElementById('product-colors').value.trim();
+  }
+
   let colorDetails = [];
   let colors = [];
   try {
