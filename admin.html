@@ -354,22 +354,17 @@
 
     <div class="admin-form-group">
       <label class="admin-form-label">Tailles disponibles</label>
-      <div class="admin-form-checkboxes">
-        <label class="admin-form-checkbox"><input type="checkbox" name="product-sizes" value="standard" onchange="handleSizeCheckboxChange(this)"/> Standard</label>
-        <label class="admin-form-checkbox"><input type="checkbox" name="product-sizes" value="NB" onchange="handleSizeCheckboxChange(this)"/> NB</label>
-        <label class="admin-form-checkbox"><input type="checkbox" name="product-sizes" value="3M" onchange="handleSizeCheckboxChange(this)"/> 3M</label>
-        <label class="admin-form-checkbox"><input type="checkbox" name="product-sizes" value="6M" onchange="handleSizeCheckboxChange(this)"/> 6M</label>
-        <label class="admin-form-checkbox"><input type="checkbox" name="product-sizes" value="9M" onchange="handleSizeCheckboxChange(this)"/> 9M</label>
-        <label class="admin-form-checkbox"><input type="checkbox" name="product-sizes" value="12M" onchange="handleSizeCheckboxChange(this)"/> 12M</label>
-        <label class="admin-form-checkbox"><input type="checkbox" name="product-sizes" value="18M" onchange="handleSizeCheckboxChange(this)"/> 18M</label>
-        <label class="admin-form-checkbox"><input type="checkbox" name="product-sizes" value="24M" onchange="handleSizeCheckboxChange(this)"/> 24M</label>
-        <label class="admin-form-checkbox"><input type="checkbox" name="product-sizes" value="36M" onchange="handleSizeCheckboxChange(this)"/> 36M</label>
+      <!-- Standard : cas spécial qui cache le sélecteur de taille sur la fiche produit -->
+      <div class="admin-form-checkboxes" style="margin-bottom:10px;">
+        <label class="admin-form-checkbox" title="Cochez si le produit n'a qu'une seule taille (pas de choix pour le client)">
+          <input type="checkbox" name="product-sizes" value="standard" onchange="handleSizeCheckboxChange(this)"/> 📏 Standard (taille unique — pas de sélecteur)
+        </label>
       </div>
       <!-- Tailles personnalisées -->
-      <div style="margin-top:10px;">
-        <div style="font-size:.78rem;color:var(--admin-text-light);margin-bottom:6px;">➕ Ajouter une taille personnalisée (ex: S, XL, 500ml, Taille unique...)</div>
+      <div>
+        <div style="font-size:.78rem;color:var(--admin-text-light);margin-bottom:6px;">➕ Ajouter les tailles du produit (ex: NB, 3M, S, XL, 500ml...)</div>
         <div style="display:flex;gap:8px;align-items:center;">
-          <input type="text" id="custom-size-input" class="admin-form-input" style="max-width:160px;padding:7px 12px;" placeholder="Ex: S, XL, 500ml..."
+          <input type="text" id="custom-size-input" class="admin-form-input" style="max-width:160px;padding:7px 12px;" placeholder="Ex: NB, 3M, S, XL..."
             onkeydown="if(event.key==='Enter'){event.preventDefault();addCustomSize();}"/>
           <button type="button" class="btn btn-outline btn-sm" onclick="addCustomSize()">➕ Ajouter</button>
         </div>
@@ -886,7 +881,7 @@ function editProduct(id) {
     .forEach(key => { const el=document.getElementById('vis-'+key); if(el) el.checked = vf[key]!==false; });
   // Sizes : séparer les tailles par défaut et les tailles personnalisées
   const sizes = p.sizes||[];
-  const defaultSizeValues = ['standard','NB','3M','6M','9M','12M','18M','24M','36M'];
+  const defaultSizeValues = ['standard'];
   document.querySelectorAll('input[name="product-sizes"]').forEach(cb => cb.checked=sizes.includes(cb.value));
   syncInitialSizesState();
   // Restaurer les tailles personnalisées (celles qui ne sont pas dans les cases par défaut)
@@ -953,8 +948,8 @@ function addCustomSize() {
   const input = document.getElementById('custom-size-input');
   const val = input.value.trim();
   if (!val) { input.focus(); return; }
-  // Vérifier si la taille existe déjà (dans les cases par défaut ou les tags custom)
-  const defaultValues = ['standard','NB','3M','6M','9M','12M','18M','24M','36M'];
+  // Vérifier si la taille existe déjà
+  const defaultValues = ['standard'];
   const alreadyDefault = defaultValues.some(d => d.toLowerCase() === val.toLowerCase());
   const alreadyCustom = [...document.querySelectorAll('#custom-sizes-tags .custom-size-tag')]
     .some(t => t.dataset.size.toLowerCase() === val.toLowerCase());
