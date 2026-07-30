@@ -884,7 +884,7 @@ function editProduct(id) {
       }
     }
     if (Array.isArray(rawColors)) {
-      parsedColorDetails = rawColors.map(c => typeof c === 'object' ? c : { color: c, stock: p.stock ?? 5 });
+      parsedColorDetails = rawColors.map(c => typeof c === 'object' ? c : { color: c, stock: 10 });
     }
   }
 
@@ -892,7 +892,7 @@ function editProduct(id) {
   colorsListDiv.innerHTML = '';
   parsedColorDetails.forEach(cd => {
     const hex = typeof cd === 'string' ? cd : (cd.color || '#ffb5ba');
-    const st  = typeof cd === 'string' ? (p.stock ?? 5) : (cd.stock ?? 5);
+    const st  = typeof cd === 'string' ? 10 : (cd.stock ?? 10);
     renderColorChipAdmin(hex, st);
   });
   syncColorsInput();
@@ -1037,13 +1037,6 @@ function syncColorsInput() {
     stock: parseInt(c.getAttribute('data-stock')) || 0
   }));
   document.getElementById('product-colors').value = JSON.stringify(colorDetails);
-
-  // Si des couleurs sont définies, le stock global devient la somme des stocks de chaque couleur
-  if (colorDetails.length > 0) {
-    const totalStock = colorDetails.reduce((sum, cd) => sum + cd.stock, 0);
-    const stockInput = document.getElementById('product-stock');
-    if (stockInput) stockInput.value = totalStock;
-  }
 }
 
 // Restriction mutuelle taille standard / autres tailles
