@@ -365,6 +365,16 @@
         <label class="admin-form-checkbox"><input type="checkbox" name="product-sizes" value="24M" onchange="handleSizeCheckboxChange(this)"/> 24M</label>
         <label class="admin-form-checkbox"><input type="checkbox" name="product-sizes" value="36M" onchange="handleSizeCheckboxChange(this)"/> 36M</label>
       </div>
+      <!-- Tailles personnalisées -->
+      <div style="margin-top:10px;">
+        <div style="font-size:.78rem;color:var(--admin-text-light);margin-bottom:6px;">➕ Ajouter une taille personnalisée (ex: S, XL, 500ml, Taille unique...)</div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <input type="text" id="custom-size-input" class="admin-form-input" style="max-width:160px;padding:7px 12px;" placeholder="Ex: S, XL, 500ml..."
+            onkeydown="if(event.key==='Enter'){event.preventDefault();addCustomSize();}"/>
+          <button type="button" class="btn btn-outline btn-sm" onclick="addCustomSize()">➕ Ajouter</button>
+        </div>
+        <div id="custom-sizes-tags" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;min-height:28px;"></div>
+      </div>
     </div>
 
     <div class="admin-form-group">
@@ -835,6 +845,9 @@ function closeProductModal() {
     cb.checked = false;
     cb.disabled = false;
   });
+  // Vider les tailles personnalisées
+  document.getElementById('custom-sizes-tags').innerHTML = '';
+  document.getElementById('custom-size-input').value = '';
   ['vis-oldprice','vis-sizes','vis-colors','vis-qty','vis-stock','vis-meta','vis-delivery','vis-reviews']
     .forEach(id => { const el=document.getElementById(id); if(el) el.checked=true; });
 }
@@ -871,10 +884,15 @@ function editProduct(id) {
   const vf = p.visibleFields || {};
   ['oldprice','sizes','colors','qty','stock','meta','delivery','reviews']
     .forEach(key => { const el=document.getElementById('vis-'+key); if(el) el.checked = vf[key]!==false; });
-  // Sizes
+  // Sizes : séparer les tailles par défaut et les tailles personnalisées
   const sizes = p.sizes||[];
+  const defaultSizeValues = ['standard','NB','3M','6M','9M','12M','18M','24M','36M'];
   document.querySelectorAll('input[name="product-sizes"]').forEach(cb => cb.checked=sizes.includes(cb.value));
   syncInitialSizesState();
+  // Restaurer les tailles personnalisées (celles qui ne sont pas dans les cases par défaut)
+  const customSizesTagsDiv = document.getElementById('custom-sizes-tags');
+  customSizesTagsDiv.innerHTML = '';
+  sizes.filter(s => !defaultSizeValues.includes(s)).forEach(s => renderCustomSizeTag(s));
   
   // ── Photo preview : séparation base64 vs URL HTTP ──
   uploadedPhotosBase64 = []; // Réinitialiser
@@ -918,6 +936,37 @@ function editProduct(id) {
   }
 
   openProductModal(true);
+}
+
+// ── Tailles personnalisées ───────────────────────────────────────
+function renderCustomSizeTag(val) {
+  const container = document.getElementById('custom-sizes-tags');
+  const tag = document.createElement('div');
+  tag.className = 'custom-size-tag';
+  tag.dataset.size = val;
+  tag.style.cssText = 'display:inline-flex;align-items:center;gap:5px;background:var(--rose-pale);border:1.5px solid var(--rose-light);color:var(--rose);padding:4px 10px;border-radius:20px;font-size:.8rem;font-weight:700;';
+  tag.innerHTML = `<span>${val}</span><button type="button" onclick="this.parentElement.remove()" style="background:none;border:none;color:var(--rose);font-weight:900;cursor:pointer;padding:0 2px;font-size:.9rem;">×</button>`;
+  container.appendChild(tag);
+}
+
+function addCustomSize() {
+  const input = document.getElementById('custom-size-input');
+  const val = input.value.trim();
+  if (!val) { input.focus(); return; }
+  // Vérifier si la taille existe déjà (dans les cases par défaut ou les tags custom)
+  const defaultValues = ['standard','NB','3M','6M','9M','12M','18M','24M','36M'];
+  const alreadyDefault = defaultValues.some(d => d.toLowerCase() === val.toLowerCase());
+  const alreadyCustom = [...document.querySelectorAll('#custom-sizes-tags .custom-size-tag')]
+    .some(t => t.dataset.size.toLowerCase() === val.toLowerCase());
+  if (alreadyDefault || alreadyCustom) {
+    alert(`La taille "${val}" existe déjà !`);
+    input.value = '';
+    input.focus();
+    return;
+  }
+  renderCustomSizeTag(val);
+  input.value = '';
+  input.focus();
 }
 
 // ── Gestion visuelle des couleurs pour l'admin ──────────────────
@@ -1012,6 +1061,11 @@ async function submitProductForm() {
   if (!id||!name||!category||isNaN(price)) { alert('ID, Nom, Catégorie et Prix sont obligatoires.'); return; }
   const sizes = [];
   document.querySelectorAll('input[name="product-sizes"]:checked').forEach(cb => sizes.push(cb.value));
+  // Ajouter les tailles personnalisées
+  document.querySelectorAll('#custom-sizes-tags .custom-size-tag').forEach(tag => {
+    const val = tag.dataset.size;
+    if (val && !sizes.includes(val)) sizes.push(val);
+  });
   const colors = colorsStr ? colorsStr.split(',').map(s=>s.trim()).filter(Boolean) : [];
   // Read visibility toggles
   const visibleFields = {};
