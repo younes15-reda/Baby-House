@@ -582,13 +582,33 @@ function setupAuthListener() {
   }
 }
 
+// ── Déconnexion forcée à chaque ouverture de la page admin ────
+// Sécurité : l'admin doit s'authentifier à chaque session
+function initAuthWithForcedLogout() {
+  // Toujours afficher le formulaire de connexion d'abord
+  document.getElementById('login-section').style.display = 'block';
+  document.getElementById('admin-panel').style.display = 'none';
+  isInitialized = false;
+
+  // Forcer la déconnexion Firebase (supprime la session persistante)
+  if (window.db && window.db.logoutAdmin) {
+    window.db.logoutAdmin()
+      .catch(() => {}) // ignorer si pas connecté
+      .finally(() => {
+        setupAuthListener();
+      });
+  } else {
+    setupAuthListener();
+  }
+}
+
 window.addEventListener('firebase-ready', () => {
-  setupAuthListener();
+  initAuthWithForcedLogout();
 });
 
 window.addEventListener('load', () => {
   if (window.db) {
-    setupAuthListener();
+    initAuthWithForcedLogout();
   }
 });
 
