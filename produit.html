@@ -1413,9 +1413,10 @@ async function submitExpressOrder() {
   }
 
   // ── 2. Afficher la confirmation au visiteur ───────────────────
+  const sizeDisplay = selectedSize || 'Standard';
   document.getElementById('order-confirm-details').innerHTML = `
     <div>📦 <strong>${currentProduct.name}</strong></div>
-    <div>📏 Taille : <strong>${selectedSize}</strong> &nbsp;·&nbsp; 🔢 Qté : <strong>${selectedQty}</strong></div>
+    <div>📏 Taille : <strong>${sizeDisplay}</strong> &nbsp;·&nbsp; 🔢 Qté : <strong>${selectedQty}</strong></div>
     <div>📍 <strong>${wilayaName}</strong> (${deliveryType === 'stopdesk' ? 'Point Relais' : 'A domicile'})</div>
     <div>🚚 Livraison : <strong>${shipping.toLocaleString('fr-DZ')} DA</strong></div>
     <div style="margin-top:6px;padding-top:6px;border-top:1px solid var(--cream);">💰 <strong style="color:var(--rose);font-size:1rem;">Total : ${total.toLocaleString('fr-DZ')} DA</strong></div>
@@ -1437,7 +1438,7 @@ async function submitExpressOrder() {
       `🏠 Adresse : ${address}\n` +
       (note ? `📝 Note : ${note}\n` : '') +
       `🧸 Produit : ${currentProduct.name}\n` +
-      `📏 Taille : ${selectedSize}\n` +
+      `📏 Taille : ${sizeDisplay}\n` +
       (selectedColor ? `🎨 Couleur : ${selectedColorName || selectedColor}\n` : '') +
       `🔢 Quantité : ${selectedQty}\n` +
       `💵 Frais livraison : ${shipping} DA\n` +
