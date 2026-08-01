@@ -210,11 +210,11 @@
               <tr>
                 <th style="width:40px;text-align:center;"><input type="checkbox" id="select-all-orders" onchange="toggleSelectAllOrders(this)"/></th>
                 <th>N° Commande</th><th>Date</th><th>Client</th><th>Téléphone</th>
-                <th>Wilaya</th><th>Produit</th><th>Taille</th><th>Couleur</th>
+                <th>Wilaya</th><th>Mode</th><th>Adresse</th><th>Produit</th><th>Taille</th><th>Couleur</th>
                 <th>Qté</th><th>Total</th><th>Statut</th><th>Actions</th>
               </tr>
             </thead>
-            <tbody id="orders-table-body"><tr><td colspan="13" style="text-align:center;padding:20px;">Chargement…</td></tr></tbody>
+            <tbody id="orders-table-body"><tr><td colspan="15" style="text-align:center;padding:20px;">Chargement…</td></tr></tbody>
           </table>
         </div>
       </div>
@@ -1235,12 +1235,12 @@ async function deleteProduct(id) {
 // ============================================================
 async function loadOrders() {
   const tbody = document.getElementById('orders-table-body');
-  tbody.innerHTML = '<tr><td colspan="13" style="text-align:center;padding:20px;">Chargement…</td></tr>';
+  tbody.innerHTML = '<tr><td colspan="15" style="text-align:center;padding:20px;">Chargement…</td></tr>';
   try {
     ordersList = await window.db.getOrders();
     applyOrdersFilter();
   } catch(e) {
-    tbody.innerHTML = '<tr><td colspan="13" style="text-align:center;color:#ef4444;">Erreur de chargement.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="15" style="text-align:center;color:#ef4444;">Erreur de chargement.</td></tr>';
   }
 }
 
@@ -1283,13 +1283,16 @@ function applyOrdersFilter() {
   if (headerCheckbox) headerCheckbox.checked = false;
 
   tbody.innerHTML = '';
-  if(!list.length) { tbody.innerHTML = '<tr><td colspan="13" style="text-align:center;padding:20px;">Aucune commande trouvée.</td></tr>'; return; }
+  if(!list.length) { tbody.innerHTML = '<tr><td colspan="15" style="text-align:center;padding:20px;">Aucune commande trouvée.</td></tr>'; return; }
 
   list.forEach(o => {
     const dateStr = o.createdAt ? new Date(o.createdAt.seconds*1000).toLocaleDateString('fr-DZ') : (o.date||'—');
     const status = o.status||o.statut||'en_attente';
     const colorDot = o.couleur ? `<span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:${o.couleur};border:1px solid #ddd;vertical-align:middle;" title="${o.couleur}"></span>` : (o.couleur||'—');
     const displayTaille = (o.taille === 'standard' || o.taille === 'Standard') ? '<strong>Standard (Taille unique)</strong>' : (o.taille || '—');
+    const deliveryType = o.mode_livraison || o.modeLivraison || 'domicile';
+    const deliveryBadge = (deliveryType === 'stopdesk') ? '<span style="background:#e0f2fe;color:#0369a1;padding:3px 8px;border-radius:6px;font-weight:600;font-size:0.75rem;white-space:nowrap;">📦 Relais</span>' : '<span style="background:#fef3c7;color:#b45309;padding:3px 8px;border-radius:6px;font-weight:600;font-size:0.75rem;white-space:nowrap;">🏠 Domicile</span>';
+    const addressStr = o.adresse || o.address || '—';
 
     tbody.innerHTML += `<tr>
       <td style="text-align:center;"><input type="checkbox" class="order-select-checkbox" data-id="${o.id}"/></td>
@@ -1298,6 +1301,8 @@ function applyOrdersFilter() {
       <td>${o.nom||o.nomClient||'—'}</td>
       <td style="font-size:.82rem;">${o.telephone||o.telephoneClient||'—'}</td>
       <td style="font-size:.82rem;">${o.wilaya||'—'}</td>
+      <td>${deliveryBadge}</td>
+      <td style="font-size:.82rem;max-width:160px;word-break:break-word;">${addressStr}</td>
       <td style="font-size:.82rem;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${o.produit_nom||o.produit||'—'}</td>
       <td style="font-size:.82rem;">${displayTaille}</td>
       <td>${colorDot}</td>
