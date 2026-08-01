@@ -652,8 +652,8 @@
     <h2 style="font-size:1.4rem;font-weight:900;color:var(--text-dark);margin-bottom:8px;">Commande Confirmée !</h2>
     <div style="font-family:var(--font-arabic);font-size:1rem;color:var(--text-soft);margin-bottom:20px;">تم تأكيد طلبك بنجاح</div>
     <div id="order-confirm-details" style="background:var(--off-white);border-radius:12px;padding:16px;text-align:left;font-size:.85rem;margin-bottom:20px;line-height:2;border:1.5px solid var(--cream);"></div>
-    <div style="font-size:.8rem;color:var(--text-soft);margin-bottom:20px;">WhatsApp s'ouvre pour finaliser avec le vendeur.<br/><span style="font-family:var(--font-arabic);">سيتم فتح واتساب للتأكيد مع البائع</span></div>
-    <button onclick="closeConfirmOverlay()" style="background:var(--rose);color:white;border:none;padding:12px 32px;border-radius:50px;font-weight:800;font-size:.9rem;cursor:pointer;">Fermer / إغلاق</button>
+    <div style="font-size:.84rem;color:var(--text-soft);margin-bottom:20px;line-height:1.5;">Notre équipe a bien reçu votre commande et vous contactera par téléphone pour confirmation.<br/><span style="font-family:var(--font-arabic);">تم استلام طلبكم بنجاح وسنتصل بكم قريباً لتأكيده</span></div>
+    <button onclick="closeConfirmOverlay()" style="background:var(--rose);color:white;border:none;padding:14px 32px;border-radius:50px;font-weight:800;font-size:.9rem;cursor:pointer;width:100%;box-shadow:0 4px 14px rgba(244,63,94,.3);">🏠 Retour à l'accueil / العودة للرئيسية</button>
   </div>
 </div>
 
@@ -1454,6 +1454,7 @@ async function submitExpressOrder() {
 
 function closeConfirmOverlay() {
   document.getElementById('order-confirm-overlay').style.display = 'none';
+  window.location.href = 'index.html';
 }
 
 // ── Reviews ───────────────────────────────────────────────────
