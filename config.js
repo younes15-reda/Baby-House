@@ -14,7 +14,7 @@ window.firebaseConfig = firebaseConfig;
 window.adminPassword = "admin2024bebechic";
 
 // ── URL de base du site ───────────────────────────────────────
-window.siteBaseUrl = "https://younes15-reda.github.io/Milybo";
+window.siteBaseUrl = "https://younes15-reda.github.io/Baby-House";
 
 // ── Notifications Telegram automatiques (CallMeBot Telegram API) ──
 // ÉTAPE D'ACTIVATION TELEGRAM :

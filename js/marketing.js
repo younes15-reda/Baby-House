@@ -90,8 +90,8 @@ function submitNewsletter(formEl) {
       "@type": "Store",
       "name": "BABY HOUSE",
       "description": "Boutique algérienne de vêtements pour bébé 0-36 mois. Livraison partout en Algérie.",
-      "url": "https://younes15-reda.github.io/Milybo",
-      "image": "https://younes15-reda.github.io/Milybo/images/Logo_principal.png",
+      "url": "https://younes15-reda.github.io/Baby-House",
+      "image": "https://younes15-reda.github.io/Baby-House/images/Logo_principal.png",
       "telephone": "+213698578155",
       "email": "contact@milybodz.dz",
       "address": {
