@@ -630,7 +630,7 @@
       <div class="social-links">
         <a href="https://www.instagram.com/babyhouse.btq?igsh=MW90YjMybXByNml6aA==" class="social-link instagram" target="_blank">Instagram</a>
         <a href="https://www.facebook.com/share/1HTWDZKCDD/" class="social-link facebook" target="_blank">Facebook</a>
-        <a href="https://wa.me/213559449995" class="social-link whatsapp" target="_blank">WhatsApp</a>
+        <a href="https://wa.me/213698578155" class="social-link whatsapp" target="_blank">WhatsApp</a>
       </div>
     </div>
     <div><h4>Navigation<span class="ar">روابط</span></h4><div class="footer-links"><a href="index.html">🏠 Accueil</a><a href="boutique.html">👗 Boutique</a><a href="contact.html">📞 Contact</a></div></div>
@@ -1362,7 +1362,34 @@ async function submitExpressOrder() {
   `;
   document.getElementById('order-confirm-overlay').style.display = 'flex';
 
-  // ── 3. Redirection WhatsApp avec message pré-rempli ───────────
+  // ── 3. Notification automatique CallMeBot Telegram (si configurée) ──
+  const tgUser = localStorage.getItem('telegramUser') || window.telegramUser || '';
+  const tgApiKey = localStorage.getItem('telegramApiKey') || window.telegramApiKey || '';
+
+  if (tgUser && tgApiKey) {
+    const formattedUser = tgUser.startsWith('@') ? tgUser : `@${tgUser}`;
+    const callmebotMsg = encodeURIComponent(
+      `🛍️ NOUVELLE COMMANDE BABY HOUSE 👶\n\n` +
+      `👤 Client : ${fullname}\n` +
+      `📞 Téléphone : ${phone}\n` +
+      `📍 Wilaya : ${wilayaName}\n` +
+      `🛵 Livraison : ${deliveryType === 'stopdesk' ? 'Point Relais (Bureau)' : 'À domicile'}\n` +
+      `🏠 Adresse : ${address}\n` +
+      (note ? `📝 Note : ${note}\n` : '') +
+      `🧸 Produit : ${currentProduct.name}\n` +
+      `📏 Taille : ${selectedSize}\n` +
+      (selectedColor ? `🎨 Couleur : ${selectedColor}\n` : '') +
+      `🔢 Quantité : ${selectedQty}\n` +
+      `💵 Frais livraison : ${shipping} DA\n` +
+      `💰 TOTAL : ${total} DA\n` +
+      `📋 Réf : ${tracking}`
+    );
+    const callmebotUrl = `https://api.callmebot.com/text.php?user=${encodeURIComponent(formattedUser)}&text=${callmebotMsg}&apikey=${encodeURIComponent(tgApiKey)}`;
+    fetch(callmebotUrl, { mode: 'no-cors' }).catch(e => console.warn('CallMeBot Telegram error:', e));
+  }
+
+  // ── 4. Redirection WhatsApp avec message pré-rempli ───────────
+  const phoneTarget = window.shopPhone || '213698578155';
   const msg = encodeURIComponent(
     `Bonjour BABY HOUSE 👋\n` +
     `🛍️ Nouvelle commande express !\n\n` +
@@ -1381,7 +1408,7 @@ async function submitExpressOrder() {
     `Réf commande : ${tracking}\n` +
     `Merci de confirmer ! 🙏`
   );
-  setTimeout(() => { window.open(`https://wa.me/213559449995?text=${msg}`, '_blank'); }, 700);
+  setTimeout(() => { window.open(`https://wa.me/${phoneTarget}?text=${msg}`, '_blank'); }, 700);
 }
 
 function closeConfirmOverlay() {
@@ -1477,7 +1504,7 @@ window.addEventListener('product-loaded', e => {
   const sp = document.getElementById('sticky-price');
   const wa = document.getElementById('sticky-whatsapp');
   if (sp) sp.textContent = (p.price || 0).toLocaleString('fr-DZ') + ' DA';
-  if (wa) wa.href = `https://wa.me/213559449995?text=${encodeURIComponent('Bonjour BABY HOUSE! Je veux commander: ' + (p.name || ''))}`;
+  if (wa) wa.href = `https://wa.me/${window.shopPhone || '213698578155'}?text=${encodeURIComponent('Bonjour BABY HOUSE! Je veux commander: ' + (p.name || ''))}`;
   if (bar) bar.style.display = 'flex';
 });
 </script>

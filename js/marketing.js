@@ -34,7 +34,7 @@
 
 // ── 2. WhatsApp Floating Button ───────────────────────────────
 document.addEventListener('DOMContentLoaded', function() {
-  const WA_NUMBER = '213559449995'; // Remplacez par votre numéro
+  const WA_NUMBER = window.shopPhone || '213698578155';
   const WA_MSG = encodeURIComponent('مرحبا بيبي هاوس 👋 أريد الاستفسار عن منتج / Bonjour BABY HOUSE, j\'ai une question.');
 
   const btn = document.createElement('a');
@@ -92,7 +92,7 @@ function submitNewsletter(formEl) {
       "description": "Boutique algérienne de vêtements pour bébé 0-36 mois. Livraison partout en Algérie.",
       "url": "https://younes15-reda.github.io/Milybo",
       "image": "https://younes15-reda.github.io/Milybo/images/Logo_principal.png",
-      "telephone": "+213559449995",
+      "telephone": "+213698578155",
       "email": "contact@milybodz.dz",
       "address": {
         "@type": "PostalAddress",

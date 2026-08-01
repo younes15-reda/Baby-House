@@ -16,13 +16,15 @@ window.adminPassword = "admin2024bebechic";
 // ── URL de base du site ───────────────────────────────────────
 window.siteBaseUrl = "https://younes15-reda.github.io/Milybo";
 
-// ── Notifications WhatsApp automatiques (CallMeBot API) ───────
-// ÉTAPE D'ACTIVATION :
-// 1. Envoyez "I allow callmebot to send me messages" au +34 644 59 26 19 sur WhatsApp
-// 2. Vous recevrez une apikey (ex: 123456)
-// 3. Remplacez '' ci-dessous par votre apikey
-window.callmebotApiKey = ''; // <-- Mettez votre apikey ici (ex: '123456')
-window.callmebotPhone  = '213559449995'; // Votre numéro WhatsApp
+// ── Notifications Telegram automatiques (CallMeBot Telegram API) ──
+// ÉTAPE D'ACTIVATION TELEGRAM :
+// 1. Ouvrez Telegram et cherchez le bot : @CallMeBot_txtbot
+// 2. Cliquez sur START (/start). Le bot vous donnera votre Apikey et votre Username / Chat ID.
+// 3. Remplissez ci-dessous votre username Telegram (ex: '@mon_pseudo') et votre apikey
+window.telegramUser   = localStorage.getItem('telegramUser') || ''; // <-- Ex: '@mon_pseudo' ou '123456789'
+window.telegramApiKey = localStorage.getItem('telegramApiKey') || ''; // <-- Ex: '9876543'
+window.callmebotPhone = '213698578155'; // Numéro principal BABY HOUSE
+window.shopPhone      = '213698578155';
 
 // ── Notifications Email automatiques (EmailJS) ────────────────
 // ÉTAPE D'ACTIVATION :

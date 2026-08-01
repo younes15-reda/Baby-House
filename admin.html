@@ -250,15 +250,33 @@
 
       </div>
 
-      <!-- WhatsApp Number Card -->
+      <!-- Settings Card: Phone & CallMeBot Telegram -->
       <div class="admin-card" style="margin-top:0;">
-        <h3 style="font-size:1rem;font-weight:800;margin-bottom:16px;">📱 Numéro WhatsApp de commande</h3>
+        <h3 style="font-size:1rem;font-weight:800;margin-bottom:16px;">📱 Numéro & Notifications Telegram (CallMeBot)</h3>
         <div class="admin-form-group">
-          <label class="admin-form-label">Numéro WhatsApp (format international, ex: 213559449995)</label>
-          <input type="text" id="settings-wa-number" class="admin-form-input" placeholder="213559449995" value="213559449995"/>
+          <label class="admin-form-label">Numéro de Téléphone (format international, ex: 213698578155)</label>
+          <input type="text" id="settings-wa-number" class="admin-form-input" placeholder="213698578155" value="213698578155" readonly/>
         </div>
-        <p style="font-size:.78rem;color:var(--admin-text-light);margin:0 0 12px;">Ce numéro est utilisé pour recevoir les commandes express via WhatsApp.</p>
-        <button class="btn btn-primary btn-sm" onclick="showToast('ℹ️ Pour changer le numéro WhatsApp, modifiez le fichier js/marketing.js et produit.html', 'default')">ℹ️ Info</button>
+        
+        <div style="border-top:1px solid var(--admin-border);padding-top:16px;margin-top:16px;">
+          <h4 style="font-size:.9rem;font-weight:800;margin-bottom:10px;color:var(--admin-primary);">🤖 Automatisation Telegram (CallMeBot API)</h4>
+          <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;padding:12px;font-size:.8rem;color:#0369a1;margin-bottom:14px;line-height:1.6;">
+            💡 <strong>Comment activer la réception de commande sur Telegram :</strong><br/>
+            1. Sur votre téléphone, ouvrez Telegram et recherchez : <strong>@CallMeBot_txtbot</strong><br/>
+            2. Appuyez sur <strong>DÉMARRER / START</strong> (/start).<br/>
+            3. Le bot vous répondra avec votre <strong>ApiKey</strong>.<br/>
+            4. Entrez votre nom d'utilisateur Telegram (ex: <code>@votre_pseudo</code>) et l'ApiKey reçue ci-dessous puis sauvegardez.
+          </div>
+          <div class="admin-form-group">
+            <label class="admin-form-label">Nom d'utilisateur Telegram (Username ou Chat ID)</label>
+            <input type="text" id="settings-tg-user" class="admin-form-input" placeholder="Ex: @mon_pseudo"/>
+          </div>
+          <div class="admin-form-group">
+            <label class="admin-form-label">ApiKey CallMeBot Telegram</label>
+            <input type="text" id="settings-tg-key" class="admin-form-input" placeholder="Ex: 9876543"/>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="saveTelegramSettings()">💾 Enregistrer la configuration CallMeBot</button>
+        </div>
       </div>
     </section>
 
@@ -596,6 +614,26 @@ function initAdminPanel() {
   } else {
     window.addEventListener('firebase-ready', loadTypes);
   }
+  loadTelegramSettings();
+}
+
+function loadTelegramSettings() {
+  const u = localStorage.getItem('telegramUser') || window.telegramUser || '';
+  const k = localStorage.getItem('telegramApiKey') || window.telegramApiKey || '';
+  const elU = document.getElementById('settings-tg-user');
+  const elK = document.getElementById('settings-tg-key');
+  if (elU) elU.value = u;
+  if (elK) elK.value = k;
+}
+
+function saveTelegramSettings() {
+  const u = document.getElementById('settings-tg-user').value.trim();
+  const k = document.getElementById('settings-tg-key').value.trim();
+  localStorage.setItem('telegramUser', u);
+  localStorage.setItem('telegramApiKey', k);
+  window.telegramUser = u;
+  window.telegramApiKey = k;
+  showToast('✅ Configuration CallMeBot Telegram sauvegardée !', 'success');
 }
 
 // ============================================================
