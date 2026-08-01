@@ -3,19 +3,19 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>Produit – Milybo DZ | ملابس أطفال</title>
-  <meta name="description" content="Découvrez nos vêtements bébés de qualité supérieure sur Milybo DZ. Coton doux et naturel pour votre bébé." />
-  <meta name="keywords" content="vêtements bébé Algérie, habits bébé DZ, ملابس أطفال, milybo dz, e-commerce algérie" />
+  <title>Produit – BABY HOUSE | ملابس أطفال</title>
+  <meta name="description" content="Découvrez nos vêtements bébés de qualité supérieure sur BABY HOUSE. Coton doux et naturel pour votre bébé." />
+  <meta name="keywords" content="vêtements bébé Algérie, habits bébé DZ, ملابس أطفال, baby house, e-commerce algérie" />
   
   <!-- Open Graph Meta Tags (SEO) -->
-  <meta property="og:title" id="og-title" content="Milybo DZ – Boutique Vêtements Bébé" />
+  <meta property="og:title" id="og-title" content="BABY HOUSE – Boutique Vêtements Bébé" />
   <meta property="og:description" id="og-desc" content="Vêtements doux et de qualité premium pour bébés de 0 à 36 mois. Livraison partout en Algérie." />
-  <meta property="og:image" id="og-image" content="https://younes15-reda.github.io/Milybo/images/milybo.jpg" />
+  <meta property="og:image" id="og-image" content="https://younes15-reda.github.io/Milybo/images/Logo_principal.png" />
   <meta property="og:type" content="product" />
-  <meta property="og:site_name" content="Milybo DZ" />
+  <meta property="og:site_name" content="BABY HOUSE" />
   <link rel="stylesheet" href="css/style.css?v=2"/>
   <link rel="stylesheet" href="css/mobile.css?v=2"/>
-  <link rel="icon" type="image/png" href="images/logo2.png"/>
+  <link rel="icon" type="image/png" href="images/Logo_principal.png"/>
   <!-- EmailJS SDK pour notifications email automatiques -->
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
   <style>
@@ -536,7 +536,7 @@
 <body>
 <!-- ── Firebase Loader ── -->
 <div id="firebase-loader">
-  <img src="images/milybo_logo.png" alt="Milybo DZ" class="loader-logo"/>
+  <img src="images/Logo_principal.png" alt="BABY HOUSE" class="loader-logo"/>
   <div class="loader-dots">
     <div class="loader-dot"></div>
     <div class="loader-dot"></div>
@@ -549,9 +549,9 @@
   <div class="header-top">🚚 Livraison rapide partout en Algérie &nbsp;·&nbsp; 💵 Cash à la livraison</div>
   <div class="header-main">
     <a href="index.html" class="logo">
-      <div class="logo-mark"><img src="images/milybo_logo.png" alt="Milybo DZ"/></div>
+      <div class="logo-mark"><img src="images/Logo_principal.png" alt="BABY HOUSE"/></div>
       <div class="logo-text">
-        <div class="logo-name">Milybo <span class="dz">DZ</span></div>
+        <div class="logo-name">BABY HOUSE</div>
         <span class="logo-sub">Vêtements Bébé · ملابس أطفال</span>
       </div>
     </a>
@@ -624,12 +624,12 @@
 <footer class="footer">
   <div class="footer-grid">
     <div class="footer-brand">
-      <div class="footer-logo-name">Milybo DZ 👶</div>
+      <div class="footer-logo-name">BABY HOUSE 👶</div>
       <p>La boutique algérienne de vêtements pour bébé de 0 à 36 mois.</p>
       <div class="footer-tagline-ar">أجمل ملابس الأطفال بالجزائر</div>
       <div class="social-links">
-        <a href="https://www.instagram.com/milybo_tlemcen?igsh=MXNlMnpzYnJheDdwcg==" class="social-link instagram" target="_blank">Instagram</a>
-        <a href="https://www.facebook.com/share/1BFJJEXAPN/" class="social-link facebook" target="_blank">Facebook</a>
+        <a href="https://www.instagram.com/babyhouse.btq?igsh=MW90YjMybXByNml6aA==" class="social-link instagram" target="_blank">Instagram</a>
+        <a href="https://www.facebook.com/share/1HTWDZKCDD/" class="social-link facebook" target="_blank">Facebook</a>
         <a href="https://wa.me/213559449995" class="social-link whatsapp" target="_blank">WhatsApp</a>
       </div>
     </div>
@@ -638,7 +638,7 @@
     <div><h4>Infos<span class="ar">معلومات</span></h4><div class="footer-links"><a href="#">📍 Alger 🇩🇿</a><a href="#">💵 Cash livraison</a></div></div>
   </div>
   <div class="footer-bottom">
-    <div class="footer-bottom-left">© 2025 Milybo DZ · ❤️ Algérie 🇩🇿</div>
+    <div class="footer-bottom-left">© 2025 BABY HOUSE · ❤️ Algérie 🇩🇿</div>
     <div class="footer-bottom-right">
       <a href="#">Mentions légales</a><span class="footer-bottom-sep">|</span>
       <a href="cgv.html">CGV</a><span class="footer-bottom-sep">|</span>
@@ -782,11 +782,11 @@ async function initProductPage() {
     return;
   }
   currentProduct = p;
-  document.title = p.name + ' – Milybo DZ';
+  document.title = p.name + ' – BABY HOUSE';
   document.getElementById('breadcrumb-name').textContent = p.name;
 
   // Open Graph dynamic
-  document.getElementById('og-title')?.setAttribute('content', `${p.name} – Milybo DZ`);
+  document.getElementById('og-title')?.setAttribute('content', `${p.name} – BABY HOUSE`);
   document.getElementById('og-desc')?.setAttribute('content', `${p.nameAr || p.name} – ${p.price.toLocaleString('fr-DZ')} DA. Livraison ZR Express partout en Algérie.`);
 
   renderProductDetail(p);
@@ -1364,7 +1364,7 @@ async function submitExpressOrder() {
 
   // ── 3. Redirection WhatsApp avec message pré-rempli ───────────
   const msg = encodeURIComponent(
-    `Bonjour Milybo DZ 👋\n` +
+    `Bonjour BABY HOUSE 👋\n` +
     `🛍️ Nouvelle commande express !\n\n` +
     `👤 Nom : ${fullname}\n` +
     `📞 Tél : ${phone}\n` +
@@ -1477,7 +1477,7 @@ window.addEventListener('product-loaded', e => {
   const sp = document.getElementById('sticky-price');
   const wa = document.getElementById('sticky-whatsapp');
   if (sp) sp.textContent = (p.price || 0).toLocaleString('fr-DZ') + ' DA';
-  if (wa) wa.href = `https://wa.me/213559449995?text=${encodeURIComponent('Bonjour Milybo! Je veux commander: ' + (p.name || ''))}`;
+  if (wa) wa.href = `https://wa.me/213559449995?text=${encodeURIComponent('Bonjour BABY HOUSE! Je veux commander: ' + (p.name || ''))}`;
   if (bar) bar.style.display = 'flex';
 });
 </script>
