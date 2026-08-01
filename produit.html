@@ -1362,11 +1362,10 @@ async function submitExpressOrder() {
   `;
   document.getElementById('order-confirm-overlay').style.display = 'flex';
 
-  // ── 3. Notification automatique CallMeBot Telegram (si configurée) ──
+  // ── 3. Notification automatique CallMeBot Telegram ──────────
   const tgUser = localStorage.getItem('telegramUser') || window.telegramUser || '';
-  const tgApiKey = localStorage.getItem('telegramApiKey') || window.telegramApiKey || '';
 
-  if (tgUser && tgApiKey) {
+  if (tgUser) {
     const formattedUser = tgUser.startsWith('@') ? tgUser : `@${tgUser}`;
     const callmebotMsg = encodeURIComponent(
       `🛍️ NOUVELLE COMMANDE BABY HOUSE 👶\n\n` +
@@ -1384,7 +1383,8 @@ async function submitExpressOrder() {
       `💰 TOTAL : ${total} DA\n` +
       `📋 Réf : ${tracking}`
     );
-    const callmebotUrl = `https://api.callmebot.com/text.php?user=${encodeURIComponent(formattedUser)}&text=${callmebotMsg}&apikey=${encodeURIComponent(tgApiKey)}`;
+    // URL sans apikey (bot Telegram @CallMeBot_txtbot n'en requiert pas)
+    const callmebotUrl = `https://api.callmebot.com/text.php?user=${encodeURIComponent(formattedUser)}&text=${callmebotMsg}`;
     fetch(callmebotUrl, { mode: 'no-cors' }).catch(e => console.warn('CallMeBot Telegram error:', e));
   }
 

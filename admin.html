@@ -259,23 +259,17 @@
         </div>
         
         <div style="border-top:1px solid var(--admin-border);padding-top:16px;margin-top:16px;">
-          <h4 style="font-size:.9rem;font-weight:800;margin-bottom:10px;color:var(--admin-primary);">🤖 Automatisation Telegram (CallMeBot API)</h4>
-          <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;padding:12px;font-size:.8rem;color:#0369a1;margin-bottom:14px;line-height:1.6;">
-            💡 <strong>Comment activer la réception de commande sur Telegram :</strong><br/>
-            1. Sur votre téléphone, ouvrez Telegram et recherchez : <strong>@CallMeBot_txtbot</strong><br/>
-            2. Appuyez sur <strong>DÉMARRER / START</strong> (/start).<br/>
-            3. Le bot vous répondra avec votre <strong>ApiKey</strong>.<br/>
-            4. Entrez votre nom d'utilisateur Telegram (ex: <code>@votre_pseudo</code>) et l'ApiKey reçue ci-dessous puis sauvegardez.
+          <h4 style="font-size:.9rem;font-weight:800;margin-bottom:10px;color:var(--admin-primary);">🤖 Automatisation Telegram (CallMeBot)</h4>
+          <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;padding:12px;font-size:.8rem;color:#0369a1;margin-bottom:14px;line-height:1.8;">
+            💡 <strong>Comment activer (2 étapes seulement) :</strong><br/>
+            1. Ouvrez Telegram → cherchez <strong>@CallMeBot_txtbot</strong> → appuyez sur <strong>START</strong><br/>
+            2. Entrez votre nom d'utilisateur Telegram ci-dessous et sauvegardez ✅
           </div>
           <div class="admin-form-group">
-            <label class="admin-form-label">Nom d'utilisateur Telegram (Username ou Chat ID)</label>
+            <label class="admin-form-label">Nom d'utilisateur Telegram (ex: @ramzimbo21)</label>
             <input type="text" id="settings-tg-user" class="admin-form-input" placeholder="Ex: @mon_pseudo"/>
           </div>
-          <div class="admin-form-group">
-            <label class="admin-form-label">ApiKey CallMeBot Telegram</label>
-            <input type="text" id="settings-tg-key" class="admin-form-input" placeholder="Ex: 9876543"/>
-          </div>
-          <button class="btn btn-primary btn-sm" onclick="saveTelegramSettings()">💾 Enregistrer la configuration CallMeBot</button>
+          <button class="btn btn-primary btn-sm" onclick="saveTelegramSettings()">💾 Enregistrer</button>
         </div>
       </div>
     </section>
@@ -639,21 +633,16 @@ function initAdminPanel() {
 
 function loadTelegramSettings() {
   const u = localStorage.getItem('telegramUser') || window.telegramUser || '';
-  const k = localStorage.getItem('telegramApiKey') || window.telegramApiKey || '';
   const elU = document.getElementById('settings-tg-user');
-  const elK = document.getElementById('settings-tg-key');
   if (elU) elU.value = u;
-  if (elK) elK.value = k;
 }
 
 function saveTelegramSettings() {
   const u = document.getElementById('settings-tg-user').value.trim();
-  const k = document.getElementById('settings-tg-key').value.trim();
-  localStorage.setItem('telegramUser', u);
-  localStorage.setItem('telegramApiKey', k);
-  window.telegramUser = u;
-  window.telegramApiKey = k;
-  showToast('✅ Configuration CallMeBot Telegram sauvegardée !', 'success');
+  const formatted = u.startsWith('@') ? u : (u ? `@${u}` : '');
+  localStorage.setItem('telegramUser', formatted);
+  window.telegramUser = formatted;
+  showToast('✅ Username Telegram sauvegardé ! Les commandes seront notifiées sur Telegram.', 'success');
 }
 
 // ============================================================
