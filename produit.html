@@ -759,11 +759,71 @@
 <script src="js/main.js"></script>
 <script src="js/marketing.js"></script>
 <script>
-let selectedSize  = null;
-let selectedColor = null;
-let selectedQty   = 1;
-let reviewStar    = 5;
-let currentProduct = null;
+let selectedSize      = null;
+let selectedColor     = null;
+let selectedColorName = null;
+let selectedQty       = 1;
+let reviewStar        = 5;
+let currentProduct    = null;
+
+// ── Convertir hex en nom de couleur lisible ───────────────────
+function hexToColorName(hex) {
+  if (!hex) return hex;
+  const h = hex.replace('#', '').toLowerCase();
+  // Palette de couleurs commune
+  const colors = {
+    // Rouges / Roses
+    'ff0000':'Rouge','cc0000':'Rouge foncé','ff4444':'Rouge vif',
+    'ffb5ba':'Rose clair','ffc0cb':'Rose','ff69b4':'Rose vif',
+    'ff1493':'Rose foncé','ff6b8a':'Rose corail','c71585':'Rose profond',
+    'f08080':'Rose saumon','d64c55':'Rouge rosé','9a323b':'Rouge bordeaux',
+    '800000':'Bordeaux','8b0000':'Rouge sombre','ff7f7f':'Saumon',
+    // Oranges
+    'ff8c00':'Orange foncé','ffa500':'Orange','ff6600':'Orange vif',
+    'ff4500':'Rouge orangé','ffaa80':'Pêche','f4a460':'Sable',
+    // Jaunes
+    'ffff00':'Jaune','ffd700':'Jaune doré','ffe4b5':'Crème jaune',
+    'fff8dc':'Blanc cassé','ffffe0':'Jaune pâle','f0e68c':'Kaki clair',
+    // Verts
+    '008000':'Vert','00ff00':'Vert vif','90ee90':'Vert clair',
+    '006400':'Vert foncé','228b22':'Vert forêt','32cd32':'Vert lime',
+    '98fb98':'Vert menthe','2e8b57':'Vert mer','3cb371':'Vert moyen',
+    '00fa9a':'Vert printemps','7cfc00':'Vert gazon',
+    // Bleus
+    '0000ff':'Bleu','0000cd':'Bleu foncé','000080':'Marine',
+    '4169e1':'Bleu royal','00bfff':'Bleu ciel','87ceeb':'Bleu clair',
+    'add8e6':'Bleu lavande','1e90ff':'Bleu dodger','87cefa':'Bleu pâle',
+    '4682b4':'Bleu acier','191970':'Bleu nuit','b0c4de':'Bleu gris',
+    // Violets
+    '800080':'Violet','ee82ee':'Violet clair','da70d6':'Orchidée',
+    'dda0dd':'Prune','9370db':'Mauve','6a0dad':'Violet foncé',
+    '8a2be2':'Bleu violet','ba55d3':'Violet moyen',
+    // Marrons / Beiges
+    'a52a2a':'Marron','d2691e':'Chocolat','8b4513':'Brun','cd853f':'Sable',
+    'deb887':'Beige sable','f5deb3':'Blé','ffe4c4':'Crème','faebd7':'Blanc antique',
+    '2e2324':'Brun très foncé','4a2c2a':'Brun foncé',
+    // Gris / Noirs / Blancs
+    '000000':'Noir','ffffff':'Blanc','808080':'Gris','c0c0c0':'Gris clair',
+    'd3d3d3':'Gris très clair','a9a9a9':'Gris moyen','696969':'Gris foncé',
+    '2f4f4f':'Gris ardoise','708090':'Gris bleuté','f5f5f5':'Blanc gris',
+    // Autres
+    '00ffff':'Cyan','40e0d0':'Turquoise','20b2aa':'Vert turquoise',
+    'ff7f50':'Corail','fa8072':'Saumon','e9967a':'Saumon foncé',
+  };
+  if (colors[h]) return colors[h];
+  // Approximation par proximité si pas de correspondance exacte
+  try {
+    const r = parseInt(h.slice(0,2),16), g = parseInt(h.slice(2,4),16), b = parseInt(h.slice(4,6),16);
+    const max = Math.max(r,g,b), min = Math.min(r,g,b);
+    if (max < 50) return 'Noir';
+    if (min > 210) return 'Blanc';
+    if (max - min < 20) return max < 130 ? 'Gris foncé' : 'Gris';
+    if (r > g && r > b) return g > 100 ? 'Orange' : (b > 80 ? 'Rose' : 'Rouge');
+    if (g > r && g > b) return r > 100 ? 'Jaune-vert' : 'Vert';
+    if (b > r && b > g) return r > 100 ? 'Mauve' : 'Bleu';
+    return `Couleur ${hex}`;
+  } catch(e) { return hex; }
+}
 
 // ── Page Init ─────────────────────────────────────────────────
 async function initProductPage() {
@@ -1209,11 +1269,12 @@ function selectColor(el, color, stock) {
   document.querySelectorAll('.color-chip').forEach(c => c.classList.remove('active'));
   el.classList.add('active');
   selectedColor = color;
+  selectedColorName = hexToColorName(color);
 
   // Afficher la couleur sélectionnée dans le label
   const lbl = document.getElementById('selected-color-name');
   if (lbl) {
-    lbl.innerHTML = `<span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:${color};border:1.5px solid #ddd;vertical-align:middle;margin-left:4px;"></span> ${color}`;
+    lbl.innerHTML = `<span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:${color};border:1.5px solid #ddd;vertical-align:middle;margin-left:4px;"></span> ${selectedColorName}`;
   }
   // Masquer le badge "N'oubliez pas..." une fois la couleur choisie
   const badge = document.querySelector('.color-badge-pulse');
@@ -1377,7 +1438,7 @@ async function submitExpressOrder() {
       (note ? `📝 Note : ${note}\n` : '') +
       `🧸 Produit : ${currentProduct.name}\n` +
       `📏 Taille : ${selectedSize}\n` +
-      (selectedColor ? `🎨 Couleur : ${selectedColor}\n` : '') +
+      (selectedColor ? `🎨 Couleur : ${selectedColorName || selectedColor}\n` : '') +
       `🔢 Quantité : ${selectedQty}\n` +
       `💵 Frais livraison : ${shipping} DA\n` +
       `💰 TOTAL : ${total} DA\n` +
