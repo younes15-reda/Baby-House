@@ -1388,27 +1388,6 @@ async function submitExpressOrder() {
     fetch(callmebotUrl, { mode: 'no-cors' }).catch(e => console.warn('CallMeBot Telegram error:', e));
   }
 
-  // ── 4. Redirection WhatsApp avec message pré-rempli ───────────
-  const phoneTarget = window.shopPhone || '213698578155';
-  const msg = encodeURIComponent(
-    `Bonjour BABY HOUSE 👋\n` +
-    `🛍️ Nouvelle commande express !\n\n` +
-    `👤 Nom : ${fullname}\n` +
-    `📞 Tél : ${phone}\n` +
-    `📍 Wilaya : ${wilayaName}\n` +
-    `🛵 Mode : ${deliveryType === 'stopdesk' ? 'Point Relais (Retrait bureau)' : 'Livraison à domicile'}\n` +
-    `🏠 Adresse/Bureau : ${address}\n` +
-    (note ? `📝 Note : ${note}\n` : '') +
-    `\n🧸 Article : ${currentProduct.name}\n` +
-    `📏 Taille : ${selectedSize}\n` +
-    (selectedColor ? `🎨 Couleur : ${selectedColor}\n` : '') +
-    `🔢 Quantité : ${selectedQty}\n` +
-    `💵 Livraison : ${shipping.toLocaleString('fr-DZ')} DA\n` +
-    `💰 Total : ${total.toLocaleString('fr-DZ')} DA\n\n` +
-    `Réf commande : ${tracking}\n` +
-    `Merci de confirmer ! 🙏`
-  );
-  setTimeout(() => { window.open(`https://wa.me/${phoneTarget}?text=${msg}`, '_blank'); }, 700);
 }
 
 function closeConfirmOverlay() {
