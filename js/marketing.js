@@ -6,7 +6,7 @@
 // ── 1. Facebook / Instagram Pixel ────────────────────────────
 // Remplacez VOTRE_PIXEL_ID par votre vrai ID Meta Pixel
 (function() {
-  const PIXEL_ID = 'VOTRE_PIXEL_ID'; // ex: '1234567890123456'
+  const PIXEL_ID = '1055068303576812'; // Meta Pixel ID BABY HOUSE
   if (!PIXEL_ID || PIXEL_ID === 'VOTRE_PIXEL_ID') return; // Skip si pas configuré
   !function(f,b,e,v,n,t,s){
     if(f.fbq)return;n=f.fbq=function(){n.callMethod?
